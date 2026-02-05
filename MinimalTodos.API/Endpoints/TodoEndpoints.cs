@@ -10,17 +10,17 @@ namespace MinimalTodos.API.Endpoints
         {
             var todos = app.MapGroup("/todos");
 
-            todos.MapPost("/", CreateAsync).WithName("CreateTodo");
-            todos.MapGet("/", FilterAsync).WithName("FilterTodo");
-            todos.MapGet("/{id:int}", GetAsync).WithName("GetTodo");
-            todos.MapPut("/{id:int}", UpdateAsync).WithName("UpdateTodo");
-            todos.MapPatch("/{id:int}/toggle", ToggleAsync).WithName("ToggleTodo");
-            todos.MapDelete("/{id:int}", DeleteAsync).WithName("DeleteTodo");
+            todos.MapPost("/", Create).WithName("CreateTodo");
+            todos.MapGet("/", Filter).WithName("FilterTodo");
+            todos.MapGet("/{id:int}", Get).WithName("GetTodo");
+            todos.MapPut("/{id:int}", Update).WithName("UpdateTodo");
+            todos.MapPatch("/{id:int}/toggle", Toggle).WithName("ToggleTodo");
+            todos.MapDelete("/{id:int}", Delete).WithName("DeleteTodo");
 
             return todos;
         }
 
-        private static IResult CreateAsync(ITodoRepository repo, TodoCreateDto dto)
+        private static IResult Create(ITodoRepository repo, TodoCreateDto dto)
         {
             var errors = TodoValidator.Validate(dto);
             if (errors is not null)
@@ -32,7 +32,7 @@ namespace MinimalTodos.API.Endpoints
             return Results.Created($"/todos/{created.Id}", created);
         }
 
-        private static IResult FilterAsync(ITodoRepository repo, string? search, int pageIndex = 0, int pageSize = 10)
+        private static IResult Filter(ITodoRepository repo, string? search, int pageIndex = 0, int pageSize = 10)
         {
             const int MaxPageSize = 100;
             if (pageIndex < 0 || pageSize <= 0 || pageSize > MaxPageSize)
@@ -54,12 +54,12 @@ namespace MinimalTodos.API.Endpoints
             return Results.Ok(page);
         }
 
-        private static IResult GetAsync(ITodoRepository repo, int id) =>
+        private static IResult Get(ITodoRepository repo, int id) =>
             repo.Get(id) is { } item
                 ? Results.Ok(item)
                 : Results.NotFound();
 
-        private static IResult UpdateAsync(ITodoRepository repo, int id, TodoCreateDto dto)
+        private static IResult Update(ITodoRepository repo, int id, TodoCreateDto dto)
         {
             var errors = TodoValidator.Validate(dto);
             if (errors is not null)
@@ -74,7 +74,7 @@ namespace MinimalTodos.API.Endpoints
             return Results.Ok(existing);
         }
 
-        private static IResult ToggleAsync(ITodoRepository repo, int id)
+        private static IResult Toggle(ITodoRepository repo, int id)
         {
             if (repo.Get(id) is not { } item)
                 return Results.NotFound();
@@ -84,7 +84,7 @@ namespace MinimalTodos.API.Endpoints
             return Results.Ok(item);
         }
 
-        private static IResult DeleteAsync(ITodoRepository repo, int id) =>
+        private static IResult Delete(ITodoRepository repo, int id) =>
             repo.Delete(id)
                 ? Results.NoContent()
                 : Results.NotFound();
